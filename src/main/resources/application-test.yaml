@@ -1,0 +1,17 @@
+service:
+  db-schema-name: slideshow
+
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:alpine
+    username: postgres
+    password: 123456
+    hikari:
+      pool-name: SlideShow-Pool
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: ${service.db-schema-name}
+

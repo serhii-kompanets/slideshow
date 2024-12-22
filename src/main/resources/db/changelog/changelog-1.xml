@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+						http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+    <changeSet id="create_images_table" author="@skompanets" context="migrate01" >
+        <comment>create currencies tables</comment>
+        <sqlFile path="db/sql/images.sql" />
+    </changeSet>
+
+    <changeSet id="create_slideshow_table" author="@skompanets" context="migrate01" >
+        <comment>create currencies tables</comment>
+        <sqlFile path="db/sql/slideshow.sql" />
+    </changeSet>
+
+    <changeSet id="create_slideshow_image_table" author="@skompanets" context="migrate01" >
+        <comment>create currencies tables</comment>
+        <sqlFile path="db/sql/slideshow_image.sql" />
+    </changeSet>
+
+    <changeSet id="create_proof_of_play_table" author="@skompanets" context="migrate01" >
+        <comment>create currencies tables</comment>
+        <sqlFile path="db/sql/proof_of_play.sql" />
+    </changeSet>
+
+</databaseChangeLog>

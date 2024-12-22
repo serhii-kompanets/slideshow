@@ -1,0 +1,36 @@
+service:
+  db-schema-name: slideshow
+
+
+preliquibase:
+  enabled: true
+  sql-script-references: classpath:db/preliquibase/schema.sql
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=${service.db-schema-name}
+    username: postgres
+    password: 12345
+    hikari:
+      pool-name: SlideShow-Pool
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: ${service.db-schema-name}
+        show_sql: true
+        format_sql: true
+    show-sql: on
+
+  liquibase:
+    change-log: classpath:dbchangelog-master.xml
+  jackson:
+    default-property-inclusion: non_null
+
+logging:
+  level:
+    org.hibernate.type.descriptor.sql: trace
+
+server:
+  port: 8082
