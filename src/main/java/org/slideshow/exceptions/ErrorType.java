@@ -1,63 +1,40 @@
 package org.slideshow.exceptions;
 
-import org.springframework.http.HttpStatus;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum ErrorType {
+    IMAGE_NOT_FOUND(101, "Image not found"),
+    SLIDESHOW_NOT_FOUND(102, "Slideshow not found"),
+
     /** System can't work with passed content-type/content-encoding. */
-    UNSUPPORTED_MEDIA_TYPE(202, HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED_MEDIA_TYPE", false),
+    UNSUPPORTED_MEDIA_TYPE(202, "UNSUPPORTED_MEDIA_TYPE"),
+    UPLOAD_FILE_IS_BROKEN(203, "Upload file is broken"),
+    IMAGE_MAX_SIZE_IS_TOO_LARGE(204, "Image max size is too large"),
 
     /** General internal server error. Something went wrong. */
-    INTERNAL_SERVER_ERROR(180, HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", false);
+    INTERNAL_SERVER_ERROR(180, "INTERNAL_SERVER_ERROR");
 
     private final int applicationCode;
+    private final String message;
 
-    private final HttpStatus httpStatusCode;
-
-    private final String messageTemplate;
-
-    private final boolean templateHasParameter;
-
-    private ErrorType(
-            final int applicationCode,
-            final HttpStatus httpStatusCode,
-            final String messageTemplate,
-            final boolean templateHasParameter
+    @JsonCreator
+    ErrorType(
+            @JsonProperty("applicationCode") final int applicationCode,
+            @JsonProperty("message") final String message
     ) {
-        this.applicationCode      = applicationCode;
-        this.httpStatusCode       = httpStatusCode;
-        this.messageTemplate      = messageTemplate;
-        this.templateHasParameter = templateHasParameter;
+        this.applicationCode = applicationCode;
+        this.message = message;
     }
 
-    public int applicationCode() {
+    @JsonGetter
+    public int getApplicationCode() {
         return applicationCode;
     }
 
-    public HttpStatus httpStatusCode() {
-        return httpStatusCode;
-    }
-
-    public String message() {
-        return messageTemplate;
-    }
-
-    public String message(final String arg) {
-        return templateHasParameter
-                ? String.format(messageTemplate, arg)
-                : messageTemplate;
-    }
-
-    public static ErrorType valueOf(final int applicationCode) {
-        ErrorType result = null;
-        for (ErrorType e : values()) {
-            if (applicationCode == e.applicationCode) {
-                result = e;
-                break;
-            }
-        }
-        if (result == null) {
-            result = INTERNAL_SERVER_ERROR;
-        }
-        return result;
+    @JsonGetter
+    public String getMessage() {
+        return message;
     }
 }

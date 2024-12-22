@@ -9,7 +9,7 @@ import java.util.List;
 public interface SlideShowService {
     SlideShowDto createSlideShow(SlideshowRequest slideshowRequest);
     SlideShowDto getSlideShow(Long slideShowId);
-    void deleteSlideShow();
+    void deleteSlideShow(long id);
     List<SlideDto> getImagesInOrder(Long slideshowId);
     void recordOfPlay(Long slideshowId, Long imageId);
 }

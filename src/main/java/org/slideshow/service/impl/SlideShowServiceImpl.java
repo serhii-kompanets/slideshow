@@ -30,6 +30,7 @@ public class SlideShowServiceImpl implements SlideShowService {
     private final ProofOfPlayRepository proofOfPlayRepository;
 
     private static final String IMAGE_ID_URL = "/images/%s";
+    private static final String SLIDE_NOT_FOUND_ERROR_MESSAGE = "Slideshow not found with ID:";
 
     @Autowired
     public SlideShowServiceImpl(SlideShowRepository slideShowRepository, ImageRepository imageRepository, ProofOfPlayRepository proofOfPlayRepository) {
@@ -41,6 +42,10 @@ public class SlideShowServiceImpl implements SlideShowService {
     @Override
     @Transactional
     public SlideShowDto createSlideShow(SlideshowRequest slideshowRequest) {
+        if (slideshowRequest == null) {
+            throw new IllegalArgumentException("slideshowRequest cannot be null");
+        }
+
         SlideshowEntity slideshow = new SlideshowEntity();
         slideshow.setName(slideshowRequest.getName());
         slideshow.setDescription(slideshowRequest.getDescription());
@@ -70,7 +75,7 @@ public class SlideShowServiceImpl implements SlideShowService {
     public SlideShowDto getSlideShow(Long slideShowId) {
         SlideshowEntity slideshowEntity = slideShowRepository
                 .findById(slideShowId)
-                .orElseThrow(() -> new SlideshowNotFoundException("Slideshow not found with ID: " + slideShowId));
+                .orElseThrow(() -> new SlideshowNotFoundException(SLIDE_NOT_FOUND_ERROR_MESSAGE + slideShowId));
         return convertSlideShowToDto(slideshowEntity);
     }
 
@@ -93,7 +98,9 @@ public class SlideShowServiceImpl implements SlideShowService {
     }
 
     @Override
-    public void deleteSlideShow() {
+    public void deleteSlideShow(long id) {
+        slideShowRepository.findById(id).orElseThrow(() -> new SlideshowNotFoundException(SLIDE_NOT_FOUND_ERROR_MESSAGE + id));
+        slideShowRepository.deleteById(id);
 
     }
 
@@ -101,7 +108,7 @@ public class SlideShowServiceImpl implements SlideShowService {
     @Transactional
     public List<SlideDto> getImagesInOrder(Long slideshowId) {
         SlideshowEntity slideshowEntity = slideShowRepository.findById(slideshowId)
-                .orElseThrow(() -> new SlideshowNotFoundException("Slideshow not found with ID: " + slideshowId));
+                .orElseThrow(() -> new SlideshowNotFoundException(SLIDE_NOT_FOUND_ERROR_MESSAGE + slideshowId));
 
         return slideshowEntity.getImages().stream()
                 .sorted(Comparator.comparing(slideshowImageEntity -> slideshowImageEntity.getImage().getCreatedAt()))
@@ -112,7 +119,7 @@ public class SlideShowServiceImpl implements SlideShowService {
     @Override
     public void recordOfPlay(Long slideshowId, Long imageId) {
         SlideshowEntity slideshowEntity = slideShowRepository.findById(slideshowId)
-                .orElseThrow(() -> new SlideshowNotFoundException("Slideshow not found with ID: " + slideshowId));
+                .orElseThrow(() -> new SlideshowNotFoundException(SLIDE_NOT_FOUND_ERROR_MESSAGE + slideshowId));
 
         ImageEntity imageEntity = imageRepository
                 .findById(imageId).orElseThrow(() -> new ImageNotFoundException("Image not found with ID: " + imageId));

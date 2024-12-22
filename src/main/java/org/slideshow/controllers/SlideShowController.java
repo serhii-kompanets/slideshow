@@ -25,8 +25,9 @@ public class SlideShowController {
     }
 
     @DeleteMapping(path = "/deleteSlideshow/{id}")
-    public ResponseEntity<SlideShowDto> deleteSlideshow(@PathVariable long id) {
-        return ResponseEntity.ok(slideShowService.getSlideShow(id));
+    public ResponseEntity<Object> deleteSlideshow(@PathVariable long id) {
+        slideShowService.deleteSlideShow(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(path = "/slideshow/{id}/slideshowOrder")
