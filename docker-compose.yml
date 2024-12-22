@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  postgres01:
+    image: postgres:latest
+    container_name: slideshow-db
+    environment:
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=slideshow
+    ports:
+      - "5432:5432"
+
+  slideshow:
+    image: slideshow:latest
+    container_name: slideshow-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres01
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres01/slideshow
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=12345
+
+networks:
+  database:
+    driver: bridge

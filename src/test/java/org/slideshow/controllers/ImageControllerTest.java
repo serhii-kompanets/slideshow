@@ -17,6 +17,7 @@ import java.nio.file.Files;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class ImageControllerTest extends AbstractWebIntegrationTest {
@@ -82,5 +83,41 @@ class ImageControllerTest extends AbstractWebIntegrationTest {
         assertThat(singleObject.getErrorType().getApplicationCode())
                 .isEqualTo(ErrorType.UNSUPPORTED_MEDIA_TYPE.getApplicationCode());
         assertThat(singleObject.getErrorType().getMessage()).isEqualTo(ErrorType.UNSUPPORTED_MEDIA_TYPE.getMessage());
+    }
+
+    @Test
+    void test_get_image_by_id_expected_image_success_result() throws Exception {
+        String filePath = "images/starwars.png";
+        URL resource = getClass().getClassLoader().getResource(filePath);
+        if (resource == null) {
+            throw new IllegalArgumentException("file not found! " + filePath);
+        }
+        File file = new File(resource.toURI());
+        byte[] bytes = Files.readAllBytes(file.toPath());
+
+        MockMultipartFile upladFile
+                = new MockMultipartFile(
+                "file",
+                "starwars.png",
+                MediaType.IMAGE_PNG_VALUE,
+                bytes
+        );
+
+        String imageURL = mockMvc.perform(multipart("/addImage")
+                        .file(upladFile)
+                        .header("Content-Type", "multipart/form-data"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        byte[] image = mockMvc.perform(get(imageURL))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsByteArray();
+
+        assertThat(image).isNotNull();
+        assertThat(image.length).isEqualTo(bytes.length);
     }
 }

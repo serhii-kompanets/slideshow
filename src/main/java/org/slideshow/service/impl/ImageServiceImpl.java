@@ -1,7 +1,10 @@
 package org.slideshow.service.impl;
 
 import org.slideshow.dtos.ImageDto;
+import org.slideshow.dtos.SlideDto;
+import org.slideshow.dtos.SlideShowDto;
 import org.slideshow.entities.ImageEntity;
+import org.slideshow.entities.SlideshowEntity;
 import org.slideshow.enums.ImageType;
 import org.slideshow.exceptions.ImageNotFoundException;
 import org.slideshow.exceptions.UploadFileBrokenException;
@@ -9,13 +12,14 @@ import org.slideshow.repositories.ImageRepository;
 import org.slideshow.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ImageServiceImpl implements ImageService {
@@ -75,6 +79,26 @@ public class ImageServiceImpl implements ImageService {
         return convertToDto(image);
     }
 
+    @Override
+    @Transactional
+    public List<Map<String, Object>> searchImage(String keyword, Integer duration) {
+        List<Object[]> results = imageRepository.searchImagesWithSlideshows(keyword, duration);
+
+        Map<ImageDto, List<SlideShowDto>> groupedResults = new HashMap<>();
+        for (Object[] row : results) {
+            ImageEntity image = (ImageEntity) row[0];
+            SlideshowEntity slideshow = (SlideshowEntity) row[1];
+            groupedResults.computeIfAbsent(convertToDto(image), k -> new ArrayList<>()).add(convertToDto(slideshow));
+        }
+
+        return groupedResults.entrySet().stream().map(entry -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("image", entry.getKey());
+            map.put("slideshows", entry.getValue());
+            return map;
+        }).toList();
+    }
+
     private static ImageDto convertToDto(ImageEntity image) {
         return new ImageDto(
                 image.getId(),
@@ -84,5 +108,20 @@ public class ImageServiceImpl implements ImageService {
                 image.getWidth(),
                 image.getHeight()
         );
+    }
+
+    private static SlideShowDto convertToDto(SlideshowEntity slideshow) {
+        return slideshow != null ? new SlideShowDto(
+                slideshow.getId(),
+                slideshow.getName(),
+                slideshow.getDescription(),
+                slideshow.getImages().stream().map(slideshowImageEntity -> new SlideDto(
+                        slideshowImageEntity.getImage().getId(),
+                        slideshowImageEntity.getImage().getFilename(),
+                        String.format(IMAGE_URL_TEMPLATE, slideshowImageEntity.getImage().getId()),
+                        slideshowImageEntity.getImage().getDuration(),
+                        slideshowImageEntity.getPosition()
+                )).toList()
+        ) : null;
     }
 }

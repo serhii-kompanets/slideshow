@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
 
@@ -27,8 +28,9 @@ public class ImageController {
     }
 
     @GetMapping(path = "/images/search")
-    public ResponseEntity<List<String>> search() {
-        return null;
+    public ResponseEntity<List<Map<String, Object>>> search(@RequestParam(value = "keyword", required = false) String keyword,
+                                                            @RequestParam(value = "duration", required = false) Integer duration) {
+        return ResponseEntity.ok(imageService.searchImage(keyword, duration));
     }
 
     @DeleteMapping(path = "/deleteImage/{id}")

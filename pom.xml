@@ -7,6 +7,7 @@
     <groupId>org.slideshow</groupId>
     <artifactId>slideshow</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -22,6 +23,8 @@
         <preliquibase.version>1.5.1</preliquibase.version>
         <commons-lang3>3.14.0</commons-lang3>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+
+        <docker.name>slideshow-service</docker.name>
     </properties>
 
     <dependencies>
@@ -104,6 +107,53 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <mainClass>org.slideshow.SlideShowApplication</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <activation>
+                <file>
+                    <exists>Dockerfile</exists>
+                </file>
+                <property>
+                    <name>env</name>
+                    <value>docker</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.31.0</version>
+                        <executions>
+                            <execution>
+                                <id>docker-build</id>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>slideshow</name>
+                                </image>
+                            </images>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

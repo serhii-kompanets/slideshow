@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slideshow.dtos.ImageDto;
 import org.slideshow.entities.ImageEntity;
+import org.slideshow.entities.SlideshowEntity;
+import org.slideshow.entities.SlideshowImageEntity;
 import org.slideshow.enums.ImageType;
 import org.slideshow.exceptions.ImageNotFoundException;
 import org.slideshow.exceptions.MimeTypeNotSupportedException;
@@ -18,6 +20,9 @@ import org.slideshow.service.impl.ImageServiceImpl;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -155,6 +160,45 @@ class ImageServiceTest {
         assertThat(imageDto.getUrl()).isEqualTo("/images/1");
 
         verify(mockImageRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testSearchImagesWithSlideshows() {
+        String keyword = "test";
+        Integer duration = 120;
+
+        ImageEntity image1 = new ImageEntity();
+        image1.setId(1L);
+        image1.setFilename("test-image.jpg");
+        image1.setDuration(duration);
+
+        ImageEntity image2 = new ImageEntity();
+        image2.setId(2L);
+        image2.setFilename("test-image.jpg");
+        image2.setDuration(duration);
+
+        SlideshowImageEntity slideshowImage = new SlideshowImageEntity();
+        slideshowImage.setId(1L);
+        slideshowImage.setImage(image1);
+
+        SlideshowImageEntity slideshowImage2 = new SlideshowImageEntity();
+        slideshowImage2.setId(2L);
+        slideshowImage2.setImage(image2);
+
+        SlideshowEntity slideshow1 = new SlideshowEntity();
+        slideshow1.setId(1L);
+        slideshow1.setName("Slideshow 1");
+        slideshow1.setImages(List.of(slideshowImage, slideshowImage2));
+
+        List<Object[]> mockResult = Arrays.asList(new Object[]{image1, slideshow1}, new Object[] {image2, slideshow1});
+
+        when(mockImageRepository.searchImagesWithSlideshows(keyword, duration))
+                .thenReturn(mockResult);
+
+        List<Map<String, Object>> images = imageService.searchImage(keyword, duration);
+
+        assertThat(images.size()).isEqualTo(2);
+        assertThat(images.get(0).get("image")).isNotNull();
     }
 
     private static @NotNull ImageEntity getImageEntity() {

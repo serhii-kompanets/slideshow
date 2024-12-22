@@ -7,6 +7,10 @@ preliquibase:
   sql-script-references: classpath:db/preliquibase/schema.sql
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres?currentSchema=${service.db-schema-name}
     username: postgres
@@ -34,3 +38,4 @@ logging:
 
 server:
   port: 8082
+

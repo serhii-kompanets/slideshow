@@ -91,6 +91,7 @@ public class SlideShowServiceImpl implements SlideShowService {
     private static Function<SlideshowImageEntity, SlideDto> convertSlideShowToDto() {
         return slideshowImage -> new SlideDto(
             slideshowImage.getImage().getId(),
+            slideshowImage.getImage().getFilename(),
             String.format(IMAGE_ID_URL, slideshowImage.getImage().getId()),
             slideshowImage.getDuration(),
             slideshowImage.getPosition()
